@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <arpa/inet.h>
 
 #define PORT 4501 // Port number to listen on
@@ -12,7 +11,6 @@ int main() {
     char buffer[1024];
     socklen_t len = sizeof(cliaddr);
 
-    // Create UDP socket
     if ((sockfd = socket(AF_INET6, SOCK_DGRAM, 0)) < 0) {
         perror("socket creation failed");
         exit(EXIT_FAILURE);
@@ -21,12 +19,11 @@ int main() {
     memset(&servaddr, 0, sizeof(servaddr));
     memset(&cliaddr, 0, sizeof(cliaddr));
 
-    // Filling server information
-    servaddr.sin6_family = AF_INET6; // IPv6
-    servaddr.sin6_addr = in6addr_any; // Bind to all available interfaces
+    servaddr.sin6_family = AF_INET6; 
+    servaddr.sin6_addr = in6addr_any; 
     servaddr.sin6_port = htons(PORT);
 
-    // Bind the socket with the server address
+
     if (bind(sockfd, (const struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
         perror("bind failed");
         exit(EXIT_FAILURE);
@@ -56,9 +53,6 @@ int main() {
         }
     }
 
-        // Sending acknowledgment back to client
-        //sendto(sockfd, (const char *)"ACK", strlen("ACK"), 0, (const struct sockaddr *)&cliaddr, len);
 
-    close(sockfd);
     return 0;
 }
