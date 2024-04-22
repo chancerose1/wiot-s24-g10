@@ -37,59 +37,63 @@ static struct k_work_q udp_server_workq;
 
 static struct k_work receive_from;
 
-
-
 K_THREAD_STACK_DEFINE(udp_server_workq_stack_area, UDP_SERVER_WORKQ_STACK_SIZE);
-
 
 static void do_work(struct k_work *item)
 {
-	ARG_UNUSED(item);
+    ARG_UNUSED(item);
 
-	while (1) {
+    while (1)
+    {
         int n = recvfrom(sockfd, (char *)buffer, sizeof(buffer), MSG_WAITALL, (struct sockaddr *)&cliaddr, &len);
-        buffer[n] = '\0'; 
+        buffer[n] = '\0';
         printk("Received from client: %s\n", buffer);
-        
-        if(strcmp(buffer, "on\n") == 0){
+
+        if (strcmp(buffer, "on\n") == 0)
+        {
             printk("on command received\n");
             sendto(sockfd, (const char *)"ok\n", strlen("ok\n"), 0, (const struct sockaddr *)&cliaddr, len);
         }
-        else if(strcmp(buffer, "off\n")== 0 ){
+        else if (strcmp(buffer, "off\n") == 0)
+        {
             printk("off command received\n");
             sendto(sockfd, (const char *)"ok\n", strlen("ok\n"), 0, (const struct sockaddr *)&cliaddr, len);
         }
-        else if(strcmp(buffer, "name\n")==0){
+        else if (strcmp(buffer, "name\n") == 0)
+        {
             printk("name command received\n");
             sendto(sockfd, (const char *)"Group 10\n", strlen("Group 10\n"), 0, (const struct sockaddr *)&cliaddr, len);
         }
-        else{
-             sendto(sockfd, (const char *)"Failed Command\n", strlen("Failed Command\n"), 0, (const struct sockaddr *)&cliaddr, len);
+        else
+        {
+            sendto(sockfd, (const char *)"Failed Command\n", strlen("Failed Command\n"), 0, (const struct sockaddr *)&cliaddr, len);
         }
     }
 }
+
 int main(void)
 {
-	 if ((sockfd = socket(AF_INET6, SOCK_DGRAM, 0)) < 0) {
+    if ((sockfd = socket(AF_INET6, SOCK_DGRAM, 0)) < 0)
+    {
         perror("socket creation failed");
         exit(EXIT_FAILURE);
     }
-	 memset(&servaddr, 0, sizeof(servaddr));
+    memset(&servaddr, 0, sizeof(servaddr));
     memset(&cliaddr, 0, sizeof(cliaddr));
 
-    servaddr.sin6_family = AF_INET6; 
-    servaddr.sin6_addr = in6addr_any; 
+    servaddr.sin6_family = AF_INET6;
+    servaddr.sin6_addr = in6addr_any;
     servaddr.sin6_port = htons(PORT);
-	if (bind(sockfd, (const struct sockaddr *)&servaddr, sizeof(servaddr)) < 0) {
+    if (bind(sockfd, (const struct sockaddr *)&servaddr, sizeof(servaddr)) < 0)
+    {
         perror("bind failed");
         exit(EXIT_FAILURE);
     }
-	k_work_queue_init(&udp_server_workq);
-	k_work_queue_start(&udp_server_workq, udp_server_workq_stack_area,
-					K_THREAD_STACK_SIZEOF(udp_server_workq_stack_area),
-					UDP_SERVER_WORKQ_PRIORITY, NULL);
-	k_work_init(&receive_from, do_work);
+    k_work_queue_init(&udp_server_workq);
+    k_work_queue_start(&udp_server_workq, udp_server_workq_stack_area,
+                       K_THREAD_STACK_SIZEOF(udp_server_workq_stack_area),
+                       UDP_SERVER_WORKQ_PRIORITY, NULL);
+    k_work_init(&receive_from, do_work);
 
-	openthread_start(openthread_get_default_context());
+    openthread_start(openthread_get_default_context());
 }
-
