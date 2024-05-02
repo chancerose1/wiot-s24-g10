@@ -1,0 +1,3 @@
+[submodule "final_proj/final_proj/ble_receiver"]
+	path = final_proj/final_proj/ble_receiver
+	url = https://github.com/chancerose1/wiot-s24-g10.git
