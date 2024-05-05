@@ -533,15 +533,9 @@ static void device_found(const bt_addr_le_t *addr, int8_t rssi, uint8_t type,
         char dev[BT_ADDR_LE_STR_LEN];
 
         bt_addr_le_to_str(addr, dev, sizeof(dev));
-        // printk("[DEVICE]: %s, AD evt type %u, AD data len %u, RSSI %i\n",dev, type, ad->len, rssi);
-
-        // We're only interested in connectable devices.
         if (type == BT_GAP_ADV_TYPE_ADV_IND ||
             type == BT_GAP_ADV_TYPE_ADV_DIRECT_IND)
         {
-                // Helper function to parse the advertising data (AD) elements
-                // from the advertisement. This will call `ad_found()` for
-                // each element.
                 bt_data_parse(ad, ad_found, (void *)addr);
         }
 }
