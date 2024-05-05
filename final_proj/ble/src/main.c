@@ -16,11 +16,14 @@
 #include <nfc_t2t_lib.h>
 #include <nfc/ndef/msg.h>
 #include <nfc/ndef/text_rec.h>
+#include <nfc/ndef/uri_msg.h>
+#include <nfc/ndef/uri_rec.h>
 #include <dk_buttons_and_leds.h>
 
 /* NFC Defines */
 #define MAX_REC_COUNT 10
 #define NDEF_MSG_BUF_SIZE 128
+#define NFC_NDEF_URI_REC_ENABLED 1
 
 /*
         UUIDs for bluetooth  service and characteristic
@@ -124,26 +127,41 @@ static int encode_msg(uint8_t *buffer, uint32_t *len, char *message_recv)
         int err;
 
         static const uint8_t en_code[] = {'e', 'n'};
-        static uint8_t en_payload[100];
-
+        static const uint8_t en_code2[] = {'e', 'n'};
+        static uint8_t en_payload[25];
         memcpy(en_payload, message_recv, strlen(message_recv));
-
-        /* Create text record descriptor */
+        char *link = "192.168.4.1/present";
         NFC_NDEF_TEXT_RECORD_DESC_DEF(nfc_en_text_rec,
                                       UTF_8,
                                       en_code,
                                       sizeof(en_code),
                                       en_payload,
                                       sizeof(en_payload));
+
+        NFC_NDEF_URI_RECORD_DESC_DEF(link_record,
+                                     NFC_URI_HTTP,
+                                     link,
+                                     strlen(link));
+
         NFC_NDEF_MSG_DEF(nfc_msg, MAX_REC_COUNT - 1);
         err = nfc_ndef_msg_record_add(&NFC_NDEF_MSG(nfc_msg),
                                       &NFC_NDEF_TEXT_RECORD_DESC(nfc_en_text_rec));
         if (err < 0)
         {
-                printk("Could not add record!\n");
+                printk("Could not add first record!\n");
                 return err;
         }
-        printk("Record added.\n");
+        printk("Code record added.\n");
+
+        err = nfc_ndef_msg_record_add(&NFC_NDEF_MSG(nfc_msg),
+                                      &NFC_NDEF_URI_RECORD_DESC(link_record));
+        if (err < 0)
+        {
+                printk("Could not add second record!\n");
+                return err;
+        }
+        printk("Link record added.\n");
+
         err = nfc_ndef_msg_encode(&NFC_NDEF_MSG(nfc_msg),
                                   buffer,
                                   len);
