@@ -26,6 +26,9 @@
 #define NFC_NDEF_URI_REC_ENABLED 1
 
 /*
+* Group Members: Alby Alex, Chance Rose, Chance Woosley
+*/
+/*
         UUIDs for bluetooth  service and characteristic
 */
 #define SERVICE_UUID BT_UUID_128_ENCODE(0x4fafc201, 0x1fb5, 0x459e, 0x8fcc, 0xc5c9c331914b)
